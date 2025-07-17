@@ -1,0 +1,31 @@
+#pragma kernel cs_main
+#include <UnityShaderVariables.cginc>
+
+struct mesh_data
+{
+    float4 color;
+    float4 position;
+};
+
+RWStructuredBuffer<mesh_data> data;
+float3 pusher_position;
+
+[numthreads(64,1,1)]
+void cs_main(uint3 id : SV_DispatchThreadID)
+{
+    float4 pos = data[id.x].position;
+
+    // Distance from the pusher
+    const float3 position = float3(pos[0], pos[1], pos[2]);
+    const float dist = distance(position, pusher_position);
+
+    // Remapped distance
+    const float t = smoothstep(64, 0, dist);
+
+    // Calculate the push amount
+    const float3 dir = normalize(position - pusher_position);
+    const float3 push_amount = dir / (dist * dist);
+    const float3 new_pos = position + push_amount;
+
+    data[id.x].position = float4(new_pos[0], new_pos[1], new_pos[2], 0);
+}

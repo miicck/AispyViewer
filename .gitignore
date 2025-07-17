@@ -1,0 +1,14 @@
+.vs
+*blend1*
+*.swp
+*.sln
+*.vsconfig
+.vscode*
+*.csproj
+Library/
+Logs/
+Packages/
+UserSettings/
+build/
+obj/
+Temp/
