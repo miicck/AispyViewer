@@ -3,13 +3,22 @@ using UnityEngine;
 using System.IO;
 using UnityEngine.PlayerLoop;
 
-public class AispyReader : MonoBehaviour
+
+public abstract class  Reader: MonoBehaviour
+{
+    public AtomRenderer atomRenderer => GetComponentInParent<AtomRenderer>();
+
+    public abstract List<AtomData> atoms { get; }
+}
+
+public class AispyReader : Reader
 {
     public string path = "\\\\wsl.localhost\\Ubuntu\\home\\mick\\calculations\\aispy\\defects\\defect_mc";
-    public AtomRenderer atomRenderer;
     List<List<AtomData>> frames;
     int currentFrame = 0;
     bool paused = true;
+
+    public override List<AtomData> atoms => frames[currentFrame];
 
     void Start()
     {
@@ -25,7 +34,7 @@ public class AispyReader : MonoBehaviour
         Actions.actions.Player.NextFrame.performed += ctx => SwitchFrame(true);
         Actions.actions.Player.PreviousFrame.performed += ctx => SwitchFrame(false);
         Actions.actions.Player.PlayPause.performed += ctx => paused = !paused;
-
+            
         // Load first frame
         SwitchFrame(true);
     }
@@ -84,7 +93,7 @@ public class AispyReader : MonoBehaviour
         if (currentFrame > frames.Count - 1)
             currentFrame = 0;
 
-        atomRenderer.SetAtoms(frames[currentFrame]);
+        atomRenderer.dirty = true;
     }
 
     private void FixedUpdate()
